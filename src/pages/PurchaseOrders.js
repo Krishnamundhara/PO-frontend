@@ -7,7 +7,7 @@ const PurchaseOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [companyProfile, setCompanyProfile] = useState(null);
+  // Company profile state removed as it's not used in this component
   
   useEffect(() => {
     const fetchData = async () => {
@@ -17,13 +17,7 @@ const PurchaseOrders = () => {
         const ordersResponse = await apiService.getOrders();
         setOrders(ordersResponse.data);
         
-        // Fetch company profile for PDF generation
-        try {
-          const profileResponse = await apiService.getCompanyProfile();
-          setCompanyProfile(profileResponse.data);
-        } catch (profileError) {
-          console.log('Company profile not set yet');
-        }
+        // Company profile fetching removed as it's not needed in this component
         
         setError(null);
       } catch (err) {
