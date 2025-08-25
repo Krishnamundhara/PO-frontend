@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import PurchaseOrders from './pages/PurchaseOrders';
 import PurchaseOrderForm from './pages/PurchaseOrderForm';
+import PurchaseOrderView from './pages/PurchaseOrderView';
 import CompanyProfile from './pages/CompanyProfile';
 import NotFound from './pages/NotFound';
 
@@ -54,6 +55,7 @@ function App() {
         <Route path="/purchase-orders" element={<PurchaseOrders />} />
         <Route path="/purchase-orders/new" element={<PurchaseOrderForm />} />
         <Route path="/purchase-orders/:id" element={<PurchaseOrderForm />} />
+        <Route path="/purchase-orders/:id/view" element={<PurchaseOrderView />} />
         <Route path="/company-profile" element={<CompanyProfile />} />
       </Route>
       

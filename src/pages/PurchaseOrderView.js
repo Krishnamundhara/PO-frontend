@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import apiService from '../utils/apiService';
-import { generatePurchaseOrderPDF } from '../utils/pdfGenerator';
+import { Helmet } from 'react-helmet';
 
 const PurchaseOrderView = () => {
   const { id } = useParams();
@@ -39,26 +39,9 @@ const PurchaseOrderView = () => {
     fetchData();
   }, [id]);
 
-  const handleDownloadPDF = () => {
-    if (!order || !companyProfile) {
-      alert('Order data or company profile not available');
-      return;
-    }
-    
-    try {
-      const doc = generatePurchaseOrderPDF(order, companyProfile);
-      
-      // Try-catch for PDF download
-      try {
-        doc.save(`PO-${order.order_no}.pdf`);
-      } catch (downloadErr) {
-        console.error('Error saving PDF:', downloadErr);
-        window.open(doc.output('bloburl'), '_blank');
-      }
-    } catch (err) {
-      console.error('Error generating PDF:', err);
-      alert('Failed to generate PDF. Please check browser console for details.');
-    }
+  // Function to handle printing the current page
+  const handlePrint = () => {
+    window.print();
   };
 
   const handleDelete = async () => {
@@ -138,38 +121,76 @@ const PurchaseOrderView = () => {
   const apiBaseUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
   
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Purchase Order</h1>
-        <div className="flex space-x-4">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <Helmet>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <style type="text/css">
+          {`
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-section, .print-section * {
+                visibility: visible;
+              }
+              .print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+              }
+              .no-print {
+                display: none !important;
+              }
+            }
+          `}
+        </style>
+      </Helmet>
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Purchase Order</h1>
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto space-y-2 sm:space-y-0 sm:space-x-3">
           <Link
             to="/purchase-orders"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
             Back
           </Link>
-          <Link
-            to={`/purchase-orders/${id}`}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Edit
-          </Link>
-          <button
-            onClick={handleDownloadPDF}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            Download PDF
-          </button>
-          <button
-            onClick={handleDelete}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Delete
-          </button>
+          <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+            <Link
+              to={`/purchase-orders/${id}`}
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Edit
+            </Link>
+            <button
+              onClick={handlePrint}
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 no-print"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+              </svg>
+              Print
+            </button>
+            <button
+              onClick={handleDelete}
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 no-print"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              Delete
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6 mb-8">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6 mb-8 print-section">
         {/* Company Header similar to PDF */}
         <div className="flex flex-col items-center mb-8">
           {companyProfile?.logo_path && (
@@ -230,7 +251,6 @@ const PurchaseOrderView = () => {
                 <th className="py-2 px-4 border-b text-left">Weight</th>
                 <th className="py-2 px-4 border-b text-left">Bags</th>
                 <th className="py-2 px-4 border-b text-left">Rate</th>
-                <th className="py-2 px-4 border-b text-left">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -239,7 +259,6 @@ const PurchaseOrderView = () => {
                 <td className="py-2 px-4 border-b">{order.weight ? `${order.weight} kg` : 'N/A'}</td>
                 <td className="py-2 px-4 border-b">{order.bags || 'N/A'}</td>
                 <td className="py-2 px-4 border-b">{order.rate ? `₹${order.rate}` : 'N/A'}</td>
-                <td className="py-2 px-4 border-b">{order.value ? `₹${order.value}` : 'N/A'}</td>
               </tr>
             </tbody>
           </table>

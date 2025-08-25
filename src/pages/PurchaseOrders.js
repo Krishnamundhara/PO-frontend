@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiService from '../utils/apiService';
-import { generatePurchaseOrderPDF } from '../utils/pdfGenerator';
+// Removed PDF generator import - we're now using the browser print function
 
 const PurchaseOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -51,15 +51,8 @@ const PurchaseOrders = () => {
     }
   };
   
-  const handleDownloadPDF = (order) => {
-    try {
-      const doc = generatePurchaseOrderPDF(order, companyProfile);
-      doc.save(`PO-${order.order_no}.pdf`);
-    } catch (err) {
-      console.error('Error generating PDF:', err);
-      alert('Failed to generate PDF');
-    }
-  };
+  // We've replaced the PDF button with a View button that navigates to the order detail view
+  // Users can print from there
   
   if (loading) {
     return (
@@ -122,9 +115,6 @@ const PurchaseOrders = () => {
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                       Product
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Value
-                    </th>
                     <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
                       <span className="sr-only">Actions</span>
                     </th>
@@ -152,23 +142,26 @@ const PurchaseOrders = () => {
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           {order.product || 'N/A'}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          ₹{order.weight && order.rate ? (order.weight * order.rate).toFixed(2) : 'N/A'}
-                        </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                           <div className="flex justify-end space-x-2">
+                            <Link
+                              to={`/purchase-orders/${order.id}/view`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              View
+                            </Link>
                             <Link
                               to={`/purchase-orders/${order.id}`}
                               className="text-indigo-600 hover:text-indigo-900"
                             >
                               Edit
                             </Link>
-                            <button
-                              onClick={() => handleDownloadPDF(order)}
+                            <Link
+                              to={`/purchase-orders/view/${order.id}`}
                               className="text-green-600 hover:text-green-900"
                             >
-                              PDF
-                            </button>
+                              View
+                            </Link>
                             <button
                               onClick={() => handleDelete(order.id)}
                               className="text-red-600 hover:text-red-900"
