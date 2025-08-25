@@ -3,7 +3,14 @@ import 'jspdf-autotable';
 
 // Function to generate purchase order PDF
 export const generatePurchaseOrderPDF = (order, company) => {
+  // Initialize jsPDF
   const doc = new jsPDF();
+  
+  // Make sure jspdf-autotable is properly loaded
+  if (!doc.autoTable) {
+    console.error('jspdf-autotable is not loaded correctly');
+    throw new Error('PDF generation failed - autoTable plugin not available');
+  }
   
   // Set document properties
   doc.setProperties({
@@ -92,7 +99,7 @@ export const generatePurchaseOrderPDF = (order, company) => {
         order.weight ? `${order.weight} kg` : 'N/A',
         order.bags || 'N/A',
         order.rate ? `₹${order.rate}` : 'N/A',
-        order.weight && order.rate ? `₹${(order.weight * order.rate).toFixed(2)}` : 'N/A'
+        order.value ? `₹${order.value}` : 'N/A'
       ]
     ],
     theme: 'striped'
