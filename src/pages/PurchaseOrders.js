@@ -156,12 +156,6 @@ const PurchaseOrders = () => {
                             >
                               Edit
                             </Link>
-                            <Link
-                              to={`/purchase-orders/view/${order.id}`}
-                              className="text-green-600 hover:text-green-900"
-                            >
-                              View
-                            </Link>
                             <button
                               onClick={() => handleDelete(order.id)}
                               className="text-red-600 hover:text-red-900"
