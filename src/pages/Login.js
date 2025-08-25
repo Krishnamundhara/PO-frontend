@@ -112,7 +112,7 @@ const Login = () => {
 
         <div className="text-sm text-center text-gray-500">
           <p>
-            Default admin: username <strong>admin</strong> / password <strong>admin123</strong>
+            Default Testing user: username <strong>krishna</strong> / password <strong>123456789</strong>
           </p>
         </div>
       </form>
