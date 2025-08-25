@@ -49,6 +49,8 @@ const apiService = {
   getUsers: () => api.get('/users'),
   getUser: (id) => api.get(`/users/${id}`),
   createUser: (userData) => api.post('/users', userData),
+  updateUser: (id, userData) => api.put(`/users/${id}`, userData),
+  resetPassword: (id, passwordData) => api.post(`/users/${id}/reset-password`, passwordData),
   deleteUser: (id) => api.delete(`/users/${id}`),
   
   // Purchase Order methods

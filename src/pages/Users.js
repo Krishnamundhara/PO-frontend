@@ -6,11 +6,18 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
     role: 'user'
+  });
+  const [passwordData, setPasswordData] = useState({
+    password: '',
+    confirmPassword: ''
   });
   const [formError, setFormError] = useState('');
 
@@ -55,6 +62,80 @@ const Users = () => {
     } catch (err) {
       console.error('Error creating user:', err);
       setFormError(err.response?.data?.message || 'Failed to create user');
+    }
+  };
+
+  const handleEdit = (user) => {
+    setSelectedUserId(user.id);
+    setFormData({
+      username: user.username,
+      email: user.email,
+      password: '', // Leave password blank when editing
+      role: user.role
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    try {
+      // If password is empty, remove it from the request
+      const updateData = {...formData};
+      if (!updateData.password) {
+        delete updateData.password;
+      }
+      
+      await apiService.updateUser(selectedUserId, updateData);
+      setShowEditModal(false);
+      setFormData({
+        username: '',
+        email: '',
+        password: '',
+        role: 'user'
+      });
+      fetchUsers(); // Refresh user list
+    } catch (err) {
+      console.error('Error updating user:', err);
+      setFormError(err.response?.data?.message || 'Failed to update user');
+    }
+  };
+
+  const handleResetPassword = (userId) => {
+    setSelectedUserId(userId);
+    setPasswordData({
+      password: '',
+      confirmPassword: ''
+    });
+    setShowResetPasswordModal(true);
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    if (passwordData.password !== passwordData.confirmPassword) {
+      setFormError('Passwords do not match');
+      return;
+    }
+
+    try {
+      await apiService.resetPassword(selectedUserId, { password: passwordData.password });
+      setShowResetPasswordModal(false);
+      setPasswordData({
+        password: '',
+        confirmPassword: ''
+      });
+      alert('Password reset successful');
+    } catch (err) {
+      console.error('Error resetting password:', err);
+      setFormError(err.response?.data?.message || 'Failed to reset password');
     }
   };
 
@@ -158,6 +239,18 @@ const Users = () => {
                           </span>
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="text-indigo-600 hover:text-indigo-900 mr-4"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleResetPassword(user.id)}
+                            className="text-blue-600 hover:text-blue-900 mr-4"
+                          >
+                            Reset Password
+                          </button>
                           <button
                             onClick={() => handleDelete(user.id)}
                             className="text-red-600 hover:text-red-900"
@@ -270,6 +363,193 @@ const Users = () => {
                       <button
                         type="button"
                         onClick={() => setShowAddModal(false)}
+                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowEditModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div className="hidden sm:block absolute top-0 right-0 pt-4 pr-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <span className="sr-only">Close</span>
+                  <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="sm:flex sm:items-start">
+                <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">Edit User</h3>
+                  
+                  {formError && (
+                    <div className="mt-2 p-2 bg-red-50 text-red-700 text-sm rounded">
+                      {formError}
+                    </div>
+                  )}
+                  
+                  <form className="mt-4" onSubmit={handleUpdate}>
+                    <div className="mb-4">
+                      <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                      <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        required
+                        value={formData.username}
+                        onChange={handleChange}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password (leave blank to keep current)</label>
+                      <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label htmlFor="role" className="block text-sm font-medium text-gray-700">Role</label>
+                      <select
+                        name="role"
+                        id="role"
+                        required
+                        value={formData.role}
+                        onChange={handleChange}
+                        className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    
+                    <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                      <button
+                        type="submit"
+                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                      >
+                        Update User
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowEditModal(false)}
+                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Password Modal */}
+      {showResetPasswordModal && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowResetPasswordModal(false)}></div>
+            
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div className="hidden sm:block absolute top-0 right-0 pt-4 pr-4">
+                <button
+                  type="button"
+                  onClick={() => setShowResetPasswordModal(false)}
+                  className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <span className="sr-only">Close</span>
+                  <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="sm:flex sm:items-start">
+                <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">Reset User Password</h3>
+                  
+                  {formError && (
+                    <div className="mt-2 p-2 bg-red-50 text-red-700 text-sm rounded">
+                      {formError}
+                    </div>
+                  )}
+                  
+                  <form className="mt-4" onSubmit={handleResetPasswordSubmit}>
+                    <div className="mb-4">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">New Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        required
+                        value={passwordData.password}
+                        onChange={handlePasswordChange}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        id="confirmPassword"
+                        required
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                    
+                    <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                      <button
+                        type="submit"
+                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                      >
+                        Reset Password
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowResetPasswordModal(false)}
                         className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
                       >
                         Cancel
