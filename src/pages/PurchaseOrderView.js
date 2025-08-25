@@ -190,75 +190,83 @@ const PurchaseOrderView = () => {
         </div>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6 mb-8 print-section">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-4 mb-4 print-section max-w-2xl mx-auto">
         {/* Company Header similar to PDF */}
-        <div className="flex flex-col items-center mb-8">
-          {companyProfile?.logo_path && (
-            <div className="mb-4">
-              <img 
-                src={`${apiBaseUrl}${companyProfile.logo_path}`}
-                alt={companyProfile.company_name || 'Company Logo'} 
-                className="h-20 object-contain"
-              />
-            </div>
-          )}
+        <div className="flex flex-col items-center mb-3">
+          {/* Sanskrit Text */}
+          <div className="text-lg text-red-600 font-semibold mb-1">
+            श्री गणेशाय नमः
+          </div>
           
-          {companyProfile?.company_name && (
-            <h1 className="text-2xl font-bold text-blue-900 mb-2">
-              {companyProfile.company_name}
-            </h1>
-          )}
+          {/* Logo and Company Name in a row */}
+          <div className="flex flex-row items-center justify-center mb-1 w-full">
+            {companyProfile?.logo_path && (
+              <div className="mr-3">
+                <img 
+                  src={`${apiBaseUrl}${companyProfile.logo_path}`}
+                  alt={companyProfile.company_name || 'Company Logo'} 
+                  className="h-12 object-contain"
+                />
+              </div>
+            )}
+            
+            {companyProfile?.company_name && (
+              <h1 className="text-xl font-bold text-black">
+                {companyProfile.company_name}
+              </h1>
+            )}
+          </div>
           
           {companyProfile?.address && (
-            <div className="text-center text-sm mb-1">
+            <div className="text-center text-xs mb-1">
               {companyProfile.address.split('\\n').map((line, idx) => (
-                <p key={idx}>{line}</p>
+                <p key={idx} className="leading-tight">{line}</p>
               ))}
             </div>
           )}
           
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            {companyProfile?.mobile && <p>Mobile: {companyProfile.mobile}</p>}
-            {companyProfile?.email && <p>Email: {companyProfile.email}</p>}
-            {companyProfile?.gst_number && <p>GST: {companyProfile.gst_number}</p>}
+          <div className="flex flex-wrap justify-center gap-2 text-xs">
+            {companyProfile?.mobile && <p className="leading-tight">Mobile: {companyProfile.mobile}</p>}
+            {companyProfile?.email && <p className="leading-tight">Email: {companyProfile.email}</p>}
+            {companyProfile?.gst_number && <p className="leading-tight">GST: {companyProfile.gst_number}</p>}
           </div>
         </div>
         
         {/* Order Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-xl font-semibold uppercase">Purchase Order</h2>
+        <div className="text-center mb-3">
+          <h2 className="text-lg font-semibold uppercase">Purchase Order</h2>
         </div>
         
         {/* Order Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div>
-            <p><span className="font-medium">Order Number:</span> {order.order_no}</p>
-            <p><span className="font-medium">Date:</span> {new Date(order.order_date).toLocaleDateString()}</p>
+        <div className="flex flex-wrap mb-3 text-sm">
+          <div className="w-1/2">
+            <p className="leading-tight"><span className="font-medium">Customer:</span> {order.customer}</p>
+            <p className="leading-tight"><span className="font-medium">Broker:</span> {order.broker || 'N/A'}</p>
+            <p className="leading-tight"><span className="font-medium">Mill:</span> {order.mill || 'N/A'}</p>
           </div>
-          <div>
-            <p><span className="font-medium">Customer:</span> {order.customer}</p>
-            <p><span className="font-medium">Broker:</span> {order.broker || 'N/A'}</p>
-            <p><span className="font-medium">Mill:</span> {order.mill || 'N/A'}</p>
+          <div className="w-1/2 text-right">
+            <p className="leading-tight"><span className="font-medium">Order Number:</span> {order.order_no}</p>
+            <p className="leading-tight"><span className="font-medium">Date:</span> {new Date(order.order_date).toLocaleDateString()}</p>
           </div>
         </div>
         
         {/* Order Details Table */}
-        <div className="overflow-x-auto mb-8">
+        <div className="overflow-x-auto mb-3">
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-100">
-                <th className="py-2 px-4 border-b text-left">Product</th>
-                <th className="py-2 px-4 border-b text-left">Weight</th>
-                <th className="py-2 px-4 border-b text-left">Bags</th>
-                <th className="py-2 px-4 border-b text-left">Rate</th>
+                <th className="py-1 px-2 border-b text-left text-sm">Product</th>
+                <th className="py-1 px-2 border-b text-left text-sm">Weight</th>
+                <th className="py-1 px-2 border-b text-left text-sm">Bags</th>
+                <th className="py-1 px-2 border-b text-left text-sm">Rate</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="py-2 px-4 border-b">{order.product || 'N/A'}</td>
-                <td className="py-2 px-4 border-b">{order.weight ? `${order.weight} kg` : 'N/A'}</td>
-                <td className="py-2 px-4 border-b">{order.bags || 'N/A'}</td>
-                <td className="py-2 px-4 border-b">{order.rate ? `₹${order.rate}` : 'N/A'}</td>
+                <td className="py-1 px-2 border-b text-sm">{order.product || 'N/A'}</td>
+                <td className="py-1 px-2 border-b text-sm">{order.weight ? `${order.weight} kg` : 'N/A'}</td>
+                <td className="py-1 px-2 border-b text-sm">{order.bags || 'N/A'}</td>
+                <td className="py-1 px-2 border-b text-sm">{order.rate ? `₹${order.rate}` : 'N/A'}</td>
               </tr>
             </tbody>
           </table>
@@ -266,25 +274,25 @@ const PurchaseOrderView = () => {
         
         {/* Terms and Conditions */}
         {order.terms_conditions && (
-          <div className="mb-8">
-            <h3 className="font-medium mb-2">Terms & Conditions:</h3>
-            <p className="whitespace-pre-wrap text-sm">{order.terms_conditions}</p>
+          <div className="mb-2">
+            <h3 className="font-medium mb-1 text-sm">Terms & Conditions:</h3>
+            <p className="whitespace-pre-wrap text-xs">{order.terms_conditions}</p>
           </div>
         )}
         
         {/* Bank Details */}
         {companyProfile?.bank_details && (
-          <div className="mb-8">
-            <h3 className="font-medium mb-2">Bank Details:</h3>
-            <p className="whitespace-pre-wrap text-sm">{companyProfile.bank_details}</p>
+          <div className="mb-2">
+            <h3 className="font-medium mb-1 text-sm">Bank Details:</h3>
+            <p className="whitespace-pre-wrap text-xs">{companyProfile.bank_details}</p>
           </div>
         )}
         
         {/* Signature Line */}
-        <div className="flex justify-end mt-12">
+        <div className="flex justify-end mt-4">
           <div className="text-center">
-            <div className="w-48 border-t border-gray-400"></div>
-            <p className="mt-1">Authorized Signatory</p>
+            <div className="w-40 border-t border-gray-400"></div>
+            <p className="mt-1 text-xs">Authorized Signatory</p>
           </div>
         </div>
       </div>
