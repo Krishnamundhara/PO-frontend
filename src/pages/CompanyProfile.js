@@ -111,6 +111,23 @@ const CompanyProfile = () => {
   
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Data isolation notice */}
+      <div className="mb-6 bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-green-700">
+              <strong>Your Private Company Profile:</strong> This information appears only on <strong>your</strong> purchase orders. 
+              Each user has their own separate company profile that cannot be seen by other users.
+            </p>
+          </div>
+        </div>
+      </div>
+      
       <div className="md:grid md:grid-cols-3 md:gap-6">
         <div className="md:col-span-1">
           <div className="px-4 sm:px-0">
