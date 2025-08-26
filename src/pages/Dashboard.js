@@ -56,7 +56,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-gray-900">Welcome, {user?.username}!</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">Welcome to your Dashboard</h1>
       
       {/* Data isolation notice */}
       <div className="mt-4 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
@@ -67,13 +67,9 @@ const Dashboard = () => {
             </svg>
           </div>
           <div className="ml-3">
-            <h2 className="text-lg font-medium text-blue-800">Your Private Workspace</h2>
+            <h2 className="text-lg font-medium text-blue-800">Secure Data Environment</h2>
             <p className="text-blue-700 mt-1">
-              <strong>This is your personal, isolated workspace.</strong> All data you see and create here is visible <strong>only to you</strong>.
-              Other users of the system cannot access your purchase orders or company information.
-            </p>
-            <p className="text-blue-700 mt-2">
-              Every user has their own separate environment - changes made by user X will <strong>never</strong> be visible to user Y.
+              All purchase orders and company information in this system are private. Your data is kept secure and separate from other users.
             </p>
           </div>
         </div>
