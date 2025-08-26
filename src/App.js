@@ -49,9 +49,9 @@ const BackendWakeupNotification = () => {
         </div>
         <div className="ml-3">
           <p className="text-sm text-yellow-700">
-            <strong>Backend server is waking up</strong>
+            <strong>Starting server...</strong>
             <br />
-            The server may take 30-60 seconds to start after inactivity.
+            Please wait while we reconnect. This happens after 15 minutes of inactivity.
           </p>
         </div>
       </div>

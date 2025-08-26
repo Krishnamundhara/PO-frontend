@@ -37,23 +37,44 @@ api.interceptors.response.use(
       error.message === 'Network Error' ||
       error.message.includes('timeout')
     ) {
-      console.log('Backend might be waking up from sleep, retrying...');
+      console.log('Backend might be waking up from sleep, checking...');
       const originalRequest = error.config;
       
       // Only retry once to avoid infinite loops
       if (!originalRequest._retry) {
         originalRequest._retry = true;
         
-        // Show wake-up notification (if using a notification system)
-        if (window.wakeupNotification) {
-          window.wakeupNotification();
-        }
-        
-        // Wait 5 seconds before retrying
+        // Check if backend is actually sleeping by pinging the health endpoint
         return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(api(originalRequest));
-          }, 5000);
+          const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+          
+          // First try to ping health endpoint with a short timeout
+          fetch(`${API_URL}/health`, { 
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(2000) // Short timeout to quickly determine if awake
+          })
+          .then(response => {
+            if (response.ok) {
+              // Backend is actually awake, just retry the original request
+              console.log('Backend is awake, just retrying request');
+              resolve(api(originalRequest));
+            } else {
+              throw new Error('Backend returned error');
+            }
+          })
+          .catch(err => {
+            // Backend is likely sleeping, show notification and wait longer
+            console.log('Backend is sleeping, showing notification and waiting', err);
+            if (window.wakeupNotification) {
+              window.wakeupNotification();
+            }
+            
+            // Wait longer before retrying since backend needs to wake up
+            setTimeout(() => {
+              resolve(api(originalRequest));
+            }, 5000);
+          });
         });
       }
     }
