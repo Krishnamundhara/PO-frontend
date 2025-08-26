@@ -30,6 +30,34 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Handle backend cold starts (connection refused, timeout, network error)
+    if (
+      !error.response || 
+      error.code === 'ECONNABORTED' || 
+      error.message === 'Network Error' ||
+      error.message.includes('timeout')
+    ) {
+      console.log('Backend might be waking up from sleep, retrying...');
+      const originalRequest = error.config;
+      
+      // Only retry once to avoid infinite loops
+      if (!originalRequest._retry) {
+        originalRequest._retry = true;
+        
+        // Show wake-up notification (if using a notification system)
+        if (window.wakeupNotification) {
+          window.wakeupNotification();
+        }
+        
+        // Wait 5 seconds before retrying
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(api(originalRequest));
+          }, 5000);
+        });
+      }
+    }
+    
     if (error.response?.status === 401) {
       // Clear token on unauthorized
       localStorage.removeItem('token');
